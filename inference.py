@@ -14,26 +14,38 @@ class Video2Text:
         self.score_list = []
         self.list_result = []
 
+    def timestamp(self):
+        video_length_ms = self.video_capture.get(cv2.CAP_PROP_POS_MSEC)
+        # fps = self.video_capture.get(cv2.CAP_PROP_FPS)
+        # frame_count = self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT)
+
+        total_seconds = video_length_ms / 1000
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        seconds = int(total_seconds % 60)
+        return "Time Stamp:" + str(hours).zfill(2) + ":" + str(minutes).zfill(2) + ":" + str(seconds).zfill(2)
+
     def inference(self):
+        try:
+            while True:
+                success, frame = self.video_capture.read()
 
-        while True:
-            success, frame = self.video_capture.read()
+                crop_image = frame[self.bbox[1]: self.bbox[1] + self.bbox[-1],
+                             self.bbox[0]: self.bbox[0] + self.bbox[2]]
+                detecting = cv2.rectangle(frame, (self.bbox[0], self.bbox[1]),
+                                          (self.bbox[0] + self.bbox[2], self.bbox[1] + self.bbox[-1]), (0, 225, 0), 1)
 
-            crop_image = frame[self.bbox[1]: self.bbox[1] + self.bbox[-1],
-                         self.bbox[0]: self.bbox[0] + self.bbox[2]]
-            detecting = cv2.rectangle(frame, (self.bbox[0], self.bbox[1]),
-                                      (self.bbox[0] + self.bbox[2], self.bbox[1] + self.bbox[-1]), (0, 225, 0), 1)
+                result = [self.timestamp(), self.rec(crop_image)]
+                self.list_result.append(result)
+                cv2.imshow("frame", detecting)
 
-            result = [str(datetime.now()), self.rec(crop_image)]
-            self.list_result.append(result)
-            cv2.imshow("frame", detecting)
+                if cv2.waitKey(20) == ord('q'):
+                    break
 
-            if cv2.waitKey(20) == ord('q'):
-                break
-
-        self.video_capture.release()
-        cv2.destroyAllWindows()
-
+            self.video_capture.release()
+            cv2.destroyAllWindows()
+        except:
+            print("end frames")
 
     def rec(self, image):
         result = self.rec_model.ocr(img=image, rec=True, det=False, cls=False)
