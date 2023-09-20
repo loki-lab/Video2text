@@ -32,12 +32,21 @@ class Video2Text:
 
                 crop_image = frame[self.bbox[1]: self.bbox[1] + self.bbox[-1],
                              self.bbox[0]: self.bbox[0] + self.bbox[2]]
-                detecting = cv2.rectangle(frame, (self.bbox[0], self.bbox[1]),
-                                          (self.bbox[0] + self.bbox[2], self.bbox[1] + self.bbox[-1]), (0, 225, 0), 1)
 
-                result = [self.timestamp(), self.rec(crop_image)]
+                cv2.imshow("frame", crop_image)
+
+                gray_crop_image = cv2.cvtColor(crop_image, cv2.COLOR_BGR2GRAY)
+
+                bin_crop_image = cv2.adaptiveThreshold(gray_crop_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
+                                                       cv2.THRESH_BINARY, 391, 4)
+                cv2.imshow("bin_crop_image", bin_crop_image)
+
+                result = [self.timestamp(), self.rec(bin_crop_image)]
+                print(result)
                 self.list_result.append(result)
-                cv2.imshow("frame", detecting)
+
+                if cv2.waitKey(20) == ord('p'):
+                    cv2.waitKey()
 
                 if cv2.waitKey(20) == ord('q'):
                     break
@@ -45,7 +54,7 @@ class Video2Text:
             self.video_capture.release()
             cv2.destroyAllWindows()
         except:
-            print("end frames")
+            print("End frame")
 
     def rec(self, image):
         result = self.rec_model.ocr(img=image, rec=True, det=False, cls=False)
