@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-pattern_image01 = cv2.imread("up_down/down.jpg")
-pattern_image02 = cv2.imread("up_down/up.jpg")
+pattern_image01 = cv2.imread("../../up_down/down.jpg")
+pattern_image02 = cv2.imread("../../up_down/up.jpg")
 pattern_image01 = cv2.cvtColor(pattern_image01, cv2.COLOR_BGR2GRAY)
 pattern_image02 = cv2.cvtColor(pattern_image02, cv2.COLOR_BGR2GRAY)
 
